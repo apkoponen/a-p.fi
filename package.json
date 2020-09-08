@@ -1,0 +1,4 @@
+{
+  "private": true,
+  "workspaces": ["gatsby-theme-personal-blog-brain", "site"]
+}
