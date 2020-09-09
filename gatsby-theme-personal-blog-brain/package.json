@@ -61,7 +61,6 @@
     "@types/react-dom": "^16.9.8",
     "gatsby": "^2.22.10",
     "react": "^16.12.0",
-    "react-dom": "^16.12.0",
-    "ts-migrate": "^0.1.2"
+    "react-dom": "^16.12.0"
   }
 }
