@@ -4,6 +4,8 @@ import {
   useStackedPagesProvider,
   StackedPagesProvider,
 } from "react-stacked-pages-hook";
+import { ScrollState } from "react-stacked-pages-hook/lib";
+
 import { dataToNote, dataToSlug } from "../utils/data-to-note";
 import Note from "./note";
 import NoteWrapper from "./note-wrapper";
@@ -12,6 +14,16 @@ import Header from "./header";
 import "./theme.css";
 import "./stacked-layout.css";
 import "./custom.css";
+
+interface StackedPagesState {
+  stackedPages: { slug: string; data: any }[];
+  stackedPageStates: ScrollState;
+  navigateToStackedPage: (to: string, index?: number | undefined) => void;
+  highlightStackedPage: (
+    slug: string,
+    highlighted?: boolean | undefined
+  ) => void;
+}
 
 const Content = ({
   windowWidth,
@@ -47,37 +59,32 @@ const MemoContent = memo(Content);
 const NotesLayout = ({ location, slug, data }: any) => {
   const windowWidth = useWindowWidth();
 
-  const [state, scrollContainer] = useStackedPagesProvider({
+  const stackedPagesContext = useStackedPagesProvider({
     firstPage: { slug: dataToSlug(data), data },
     location,
     processPageQuery: dataToNote,
     pageWidth: 625,
   });
+  const state = stackedPagesContext[0] as StackedPagesState;
+  const scrollContainer = stackedPagesContext[1];
 
-  // @ts-expect-error ts-migrate(2339) FIXME: Property 'stackedPages' does not exist on type '(n... Remove this comment to see the full error message
   let pages = state.stackedPages;
   let activeIndex;
   if (windowWidth <= 800) {
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'stackedPageStates' does not exist on typ... Remove this comment to see the full error message
     const activeSlug = Object.keys(state.stackedPageStates).find(
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'stackedPageStates' does not exist on typ... Remove this comment to see the full error message
       (slug) => state.stackedPageStates[slug].active
     );
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'stackedPages' does not exist on type '(n... Remove this comment to see the full error message
     activeIndex = state.stackedPages.findIndex(
       (page: any) => page.slug === activeSlug
     );
     if (activeIndex === -1) {
-      // @ts-expect-error ts-migrate(2339) FIXME: Property 'stackedPages' does not exist on type '(n... Remove this comment to see the full error message
       activeIndex = state.stackedPages.length - 1;
     }
 
-    // @ts-expect-error ts-migrate(2339) FIXME: Property 'stackedPages' does not exist on type '(n... Remove this comment to see the full error message
     pages = [state.stackedPages[activeIndex]];
   }
 
   return (
-    // @ts-expect-error ts-migrate(2322) FIXME: Type '(node: HTMLDivElement) => void' is missing t... Remove this comment to see the full error message
     <StackedPagesProvider value={state}>
       <MemoContent
         windowWidth={windowWidth}

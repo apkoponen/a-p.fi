@@ -12,10 +12,9 @@ export function useWindowSize() {
 
   const [windowSize, setWindowSize] = useState(getSize);
 
-  // @ts-expect-error ts-migrate(2345) FIXME: Type 'false' is not assignable to type 'void | (()... Remove this comment to see the full error message
   useEffect(() => {
     if (!isClient) {
-      return false;
+      return;
     }
 
     function handleResize() {

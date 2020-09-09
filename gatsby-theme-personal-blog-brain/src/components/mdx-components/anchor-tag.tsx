@@ -15,8 +15,9 @@ export const AnchorTag = ({
   withoutPopup,
   ...restProps
 }: any) => {
-  // @ts-expect-error ts-migrate(7006) FIXME: Parameter 'x' implicitly has an 'any' type.
-  const ref = references.find((x) => withPrefix(x.slug) === withPrefix(href));
+  const ref = references.find(
+    (x: any) => withPrefix(x.slug) === withPrefix(href)
+  );
 
   let content;
   let popupContent;
