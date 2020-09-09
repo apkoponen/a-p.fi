@@ -1,12 +1,5 @@
 module.exports = (options) => {
-  const {
-    mdxOtherwiseConfigured = false,
-    contentPath,
-    roamUrl,
-    roamEmail,
-    roamPassword,
-    ignore,
-  } = options;
+  const { mdxOtherwiseConfigured = false, contentPath, ignore } = options;
 
   return {
     siteMetadata: {
@@ -38,14 +31,6 @@ module.exports = (options) => {
               },
             },
           ],
-        },
-      },
-      roamUrl && {
-        resolve: "gatsby-source-roamresearch",
-        options: {
-          url: roamUrl,
-          email: roamEmail,
-          password: roamPassword,
         },
       },
       contentPath && {
