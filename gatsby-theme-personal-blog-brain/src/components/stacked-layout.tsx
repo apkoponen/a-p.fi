@@ -59,14 +59,13 @@ const MemoContent = memo(Content);
 const NotesLayout = ({ location, slug, data }: any) => {
   const windowWidth = useWindowWidth();
 
-  const stackedPagesContext = useStackedPagesProvider({
+  const [_state, scrollContainer] = useStackedPagesProvider({
     firstPage: { slug: dataToSlug(data), data },
     location,
     processPageQuery: dataToNote,
     pageWidth: 625,
   });
-  const state = stackedPagesContext[0] as StackedPagesState;
-  const scrollContainer = stackedPagesContext[1];
+  const state = _state as StackedPagesState;
 
   let pages = state.stackedPages;
   let activeIndex;
