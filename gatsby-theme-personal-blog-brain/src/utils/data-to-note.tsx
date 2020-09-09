@@ -25,8 +25,10 @@ const mapOutboundRefs = (ref: any) =>
         displayTitle: ref.parent.fields.title,
         slug: ref.parent.fields.slug,
       }
-    : // @ts-expect-error ts-migrate(1345) FIXME: An expression of type 'void' cannot be tested for ... Remove this comment to see the full error message
-      console.warn(`Cannot map outbound ref`, ref) || null;
+    : (() => {
+        console.warn(`Cannot map outbound ref`, ref);
+        return null;
+      })();
 
 const mapInboundRefs = (ref: any) =>
   ref.parent.fields.parentPage // roamBlock
@@ -54,8 +56,10 @@ const mapInboundRefs = (ref: any) =>
         id: ref.parent.id,
         slug: ref.parent.fields.slug,
       }
-    : // @ts-expect-error ts-migrate(1345) FIXME: An expression of type 'void' cannot be tested for ... Remove this comment to see the full error message
-      console.warn(`Cannot map inbound ref`, ref) || null;
+    : (() => {
+        console.warn(`Cannot map inbound ref`, ref);
+        return null;
+      })();
 
 export const dataToNote = (data: any) =>
   data.roamPage
