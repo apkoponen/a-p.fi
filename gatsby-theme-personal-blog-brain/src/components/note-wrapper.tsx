@@ -10,18 +10,14 @@ import "./note-wrapper.css";
 function noteContainerClassName({
   overlay,
   obstructed,
-  highlighted
+  highlighted,
 }: any = {}) {
   return `note-container ${overlay ? "note-container-overlay" : ""} ${
     obstructed ? "note-container-obstructed" : ""
   } ${highlighted ? "note-container-highlighted" : ""}`;
 }
 
-const NoteWrapper = ({
-  children,
-  slug,
-  title
-}: any) => {
+const NoteWrapper = ({ children, slug, title }: any) => {
   const [, state, i] = useStackedPage();
 
   return (
@@ -37,10 +33,7 @@ const NoteWrapper = ({
   );
 };
 
-const ContextProvider = ({
-  i,
-  ...rest
-}: any) => (
+const ContextProvider = ({ i, ...rest }: any) => (
   <PageIndexProvider value={i}>
     <NoteWrapper {...rest} />
   </PageIndexProvider>

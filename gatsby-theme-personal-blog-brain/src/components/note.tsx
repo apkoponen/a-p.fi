@@ -6,7 +6,9 @@ import ReferencesBlock from "./references-block";
 import { LinkToStacked } from "react-stacked-pages-hook";
 
 const Note = (data: any) => {
-  const AnchorTag = (props: any) => <components.a {...props} references={data.outboundReferences} />;
+  const AnchorTag = (props: any) => (
+    <components.a {...props} references={data.outboundReferences} />
+  );
 
   return (
     <React.Fragment>

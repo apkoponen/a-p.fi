@@ -18,10 +18,7 @@ const MINIMIZED_GRAPH = {
   height: 177,
 };
 
-const GraphVisualisation = ({
-  setGraphState,
-  graphState
-}: any) => {
+const GraphVisualisation = ({ setGraphState, graphState }: any) => {
   const [nodesData, linksData, navigate, highlight] = useGraphData();
   const windowSize = useWindowSize();
   const d3Container = useRef(null);
@@ -63,7 +60,7 @@ const GraphVisualisation = ({
     let node = g.select(".nodes").selectAll(".node");
     let text = g.select(".text").selectAll(".text");
 
-    const zoomOrKeep = (value: any) => zoom >= 1 ? value / zoom : value;
+    const zoomOrKeep = (value: any) => (zoom >= 1 ? value / zoom : value);
 
     const font = Math.max(Math.round(zoomOrKeep(FONT_SIZE)), 1);
 
@@ -114,7 +111,7 @@ const GraphVisualisation = ({
     // @ts-expect-error ts-migrate(2721) FIXME: Cannot invoke an object which is possibly 'null'.
     zoomHandler.current(svg);
 
-    const zoomOrKeep = (value: any) => zoom >= 1 ? value / zoom : value;
+    const zoomOrKeep = (value: any) => (zoom >= 1 ? value / zoom : value);
     const font = Math.max(Math.round(zoomOrKeep(FONT_SIZE)), 1);
 
     let link = g.select(".links").selectAll(".link");

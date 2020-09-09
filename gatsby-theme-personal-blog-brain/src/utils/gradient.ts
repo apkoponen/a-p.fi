@@ -25,7 +25,11 @@ function convertToRGB(hex: any) {
   return color;
 }
 
-export function generateGradientColors(colorStart: any, colorEnd: any, colorCount: any) {
+export function generateGradientColors(
+  colorStart: any,
+  colorEnd: any,
+  colorCount: any
+) {
   // The beginning of your gradient
   var start = convertToRGB(colorStart);
 

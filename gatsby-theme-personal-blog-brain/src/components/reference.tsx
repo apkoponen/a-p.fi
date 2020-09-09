@@ -3,9 +3,7 @@ import { LinkToStacked } from "react-stacked-pages-hook";
 
 import "./reference.css";
 
-const Reference = ({
-  node
-}: any) => {
+const Reference = ({ node }: any) => {
   return (
     <div>
       <LinkToStacked to={node.slug} className="reference">

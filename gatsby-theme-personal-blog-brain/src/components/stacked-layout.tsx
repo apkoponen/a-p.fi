@@ -17,7 +17,7 @@ const Content = ({
   windowWidth,
   scrollContainer,
   stackedPages,
-  index
+  index,
 }: any) => {
   return (
     <div className="layout">
@@ -44,11 +44,7 @@ const Content = ({
 };
 const MemoContent = memo(Content);
 
-const NotesLayout = ({
-  location,
-  slug,
-  data
-}: any) => {
+const NotesLayout = ({ location, slug, data }: any) => {
   const windowWidth = useWindowWidth();
 
   const [state, scrollContainer] = useStackedPagesProvider({
