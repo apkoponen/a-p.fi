@@ -14,7 +14,8 @@ export const AnchorTag = ({
   withoutLink,
   withoutPopup,
   ...restProps
-}) => {
+}: any) => {
+  // @ts-expect-error ts-migrate(7006) FIXME: Parameter 'x' implicitly has an 'any' type.
   const ref = references.find((x) => withPrefix(x.slug) === withPrefix(href));
 
   let content;
@@ -23,10 +24,10 @@ export const AnchorTag = ({
 
   if (ref) {
     const nestedComponents = {
-      a(props) {
+      a(props: any) {
         return <AnchorTag {...props} references={references} withoutLink />;
       },
-      p(props) {
+      p(props: any) {
         return <span {...props} />;
       },
     };

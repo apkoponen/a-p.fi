@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { animated, useSpring } from "react-spring";
 import * as d3 from "d3";
+// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module '../use-graph-data' or its corr... Remove this comment to see the full error message
 import { useGraphData } from "../use-graph-data";
 import { useWindowSize } from "../use-window-size";
 
@@ -17,14 +18,19 @@ const MINIMIZED_GRAPH = {
   height: 177,
 };
 
-const GraphVisualisation = ({ setGraphState, graphState }) => {
+const GraphVisualisation = ({
+  setGraphState,
+  graphState
+}: any) => {
   const [nodesData, linksData, navigate, highlight] = useGraphData();
   const windowSize = useWindowSize();
   const d3Container = useRef(null);
   const [zoom, setZoom] = useState(1);
 
   const modalSize = {
+    // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
     width: Math.min(windowSize.width - 40, 900),
+    // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
     height: Math.min(windowSize.height - 40, 800),
   };
 
@@ -36,6 +42,7 @@ const GraphVisualisation = ({ setGraphState, graphState }) => {
         "link",
         d3
           .forceLink(linksData)
+          // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type 'SimulationNo... Remove this comment to see the full error message
           .id((d) => d.id)
           .distance(40)
       )
@@ -56,7 +63,7 @@ const GraphVisualisation = ({ setGraphState, graphState }) => {
     let node = g.select(".nodes").selectAll(".node");
     let text = g.select(".text").selectAll(".text");
 
-    const zoomOrKeep = (value) => (zoom >= 1 ? value / zoom : value);
+    const zoomOrKeep = (value: any) => zoom >= 1 ? value / zoom : value;
 
     const font = Math.max(Math.round(zoomOrKeep(FONT_SIZE)), 1);
 
@@ -68,14 +75,14 @@ const GraphVisualisation = ({ setGraphState, graphState }) => {
   const hookNode = useCallback(
     (node) => {
       return node
-        .on("click", (d) => {
+        .on("click", (d: any) => {
           navigate(d.slug);
           setGraphState("minimized");
         })
-        .on("mouseenter", (d) => {
+        .on("mouseenter", (d: any) => {
           highlight(d.slug, true);
         })
-        .on("mouseleave", (d) => {
+        .on("mouseleave", (d: any) => {
           highlight(d.slug, false);
         });
     },
@@ -98,20 +105,23 @@ const GraphVisualisation = ({ setGraphState, graphState }) => {
       g.attr("transform", scale);
     };
 
+    // @ts-expect-error ts-migrate(2322) FIXME: Type 'ZoomBehavior<Element, unknown>' is not assig... Remove this comment to see the full error message
     zoomHandler.current = d3
       .zoom()
       .scaleExtent([0.2, 3])
       .on("zoom", zoomActions);
 
+    // @ts-expect-error ts-migrate(2721) FIXME: Cannot invoke an object which is possibly 'null'.
     zoomHandler.current(svg);
 
-    const zoomOrKeep = (value) => (zoom >= 1 ? value / zoom : value);
+    const zoomOrKeep = (value: any) => zoom >= 1 ? value / zoom : value;
     const font = Math.max(Math.round(zoomOrKeep(FONT_SIZE)), 1);
 
     let link = g.select(".links").selectAll(".link");
     let node = g.select(".nodes").selectAll(".node");
     let text = g.select(".text").selectAll(".text");
 
+    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
     node = node.data(nodesData, (d) => d.id);
     node.exit().remove();
     node = hookNode(
@@ -122,22 +132,27 @@ const GraphVisualisation = ({ setGraphState, graphState }) => {
         .attr("r", zoomOrKeep(RADIUS))
     ).merge(node);
 
+    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
     link = link.data(linksData, (d) => `${d.source.id}-${d.target.id}`);
     link.exit().remove();
+    // @ts-expect-error ts-migrate(2322) FIXME: Type 'Selection<BaseType, unknown, BaseType, unkno... Remove this comment to see the full error message
     link = link
       .enter()
       .append("line")
       .attr("class", "link")
       .attr("stroke-width", zoomOrKeep(STROKE))
       .attr("stroke", "grey")
+      // @ts-expect-error ts-migrate(2345) FIXME: Type 'null' is not assignable to type 'SVGLineElem... Remove this comment to see the full error message
       .merge(link);
 
+    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
     text = text.data(nodesData, (d) => d.label);
     text.exit().remove();
     text = hookNode(
       text
         .enter()
         .append("text")
+        // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
         .text((d) => d.label.replace(/_*/g, ""))
         .attr("class", "text")
         .attr("font-size", `${font}px`)
@@ -146,6 +161,7 @@ const GraphVisualisation = ({ setGraphState, graphState }) => {
     ).merge(text);
 
     simulation.current.nodes(nodesData);
+    // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
     simulation.current.force("link").links(linksData);
     simulation.current.alpha(1).restart();
     simulation.current.stop();
@@ -154,12 +170,18 @@ const GraphVisualisation = ({ setGraphState, graphState }) => {
       simulation.current.tick();
     }
 
+    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
     node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
+    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
     text.attr("x", (d) => d.x).attr("y", (d) => d.y - FONT_BASELINE);
     link
+      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
       .attr("x1", (d) => d.source.x)
+      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
       .attr("y1", (d) => d.source.y)
+      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
       .attr("x2", (d) => d.target.x)
+      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
       .attr("y2", (d) => d.target.y);
   }, [graphState, d3Container]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -173,16 +195,21 @@ const GraphVisualisation = ({ setGraphState, graphState }) => {
     const node = g
       .select(".nodes")
       .selectAll(".node")
+      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
       .data(nodesData, (d) => d.id);
     const text = g
       .select(".text")
       .selectAll(".text")
+      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
       .data(nodesData, (d) => d.id);
     g.select(".links")
       .selectAll(".link")
+      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
       .data(linksData, (d) => `${d.source.id}-${d.target.id}`);
 
+    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
     node.attr("fill", (d) => d.color);
+    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
     text.attr("fill", (d) => d.color);
   }, [nodesData, linksData, graphState, d3Container]);
 
@@ -194,7 +221,7 @@ const GraphVisualisation = ({ setGraphState, graphState }) => {
       width: MINIMIZED_GRAPH.width,
       transform: "translate(0%, 100%)",
     },
-    onFrame(value) {
+    onFrame(value: any) {
       if (!zoomHandler.current) {
         return;
       }
@@ -204,8 +231,10 @@ const GraphVisualisation = ({ setGraphState, graphState }) => {
         value.width / modalSize.width
       );
       const svg = d3.select("#d3-container");
+      // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
       zoomHandler.current.scaleTo(svg, ratio);
 
+      // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
       zoomHandler.current.translateTo(
         svg,
         modalSize.width / 2,
@@ -218,6 +247,7 @@ const GraphVisualisation = ({ setGraphState, graphState }) => {
     setModalSpring(
       graphState === "maximized"
         ? {
+            // @ts-expect-error ts-migrate(2345) FIXME: Object literal may only specify known properties, ... Remove this comment to see the full error message
             bottom: "50%",
             right: "50%",
             height: modalSize.height,

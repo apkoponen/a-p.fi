@@ -1,4 +1,4 @@
-function hex(c) {
+function hex(c: any) {
   var s = "0123456789abcdef";
   var i = parseInt(c);
   if (i === 0 || isNaN(c)) return "00";
@@ -7,17 +7,17 @@ function hex(c) {
 }
 
 /* Convert an RGB triplet to a hex string */
-function convertToHex(rgb) {
+function convertToHex(rgb: any) {
   return "#" + hex(rgb[0]) + hex(rgb[1]) + hex(rgb[2]);
 }
 
 /* Remove '#' in color hex string */
-function trim(s) {
+function trim(s: any) {
   return s.charAt(0) === "#" ? s.substring(1, 7) : s;
 }
 
 /* Convert a hex string to an RGB triplet */
-function convertToRGB(hex) {
+function convertToRGB(hex: any) {
   var color = [];
   color[0] = parseInt(trim(hex).substring(0, 2), 16);
   color[1] = parseInt(trim(hex).substring(2, 4), 16);
@@ -25,7 +25,7 @@ function convertToRGB(hex) {
   return color;
 }
 
-export function generateGradientColors(colorStart, colorEnd, colorCount) {
+export function generateGradientColors(colorStart: any, colorEnd: any, colorCount: any) {
   // The beginning of your gradient
   var start = convertToRGB(colorStart);
 

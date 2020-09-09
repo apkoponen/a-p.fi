@@ -1,7 +1,10 @@
 import React from "react";
 import { mdx } from "@mdx-js/react";
 
-export default function MDXRenderer({ children, ...props }) {
+export default function MDXRenderer({
+  children,
+  ...props
+}: any) {
   // Memoize the compiled component
   const End = React.useMemo(() => {
     if (!children) {
