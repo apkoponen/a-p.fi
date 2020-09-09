@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-      "build": "gatsby build",
-      "clean": "gatsby clean",
-      "develop": "gatsby develop"
+    "build": "gatsby build",
+    "clean": "gatsby clean",
+    "develop": "gatsby develop"
   },
   "keywords": [
     "gatsby",
@@ -56,6 +56,9 @@
     "use-dark-mode": "^2.3.1"
   },
   "devDependencies": {
+    "@types/d3": "^5.7.2",
+    "@types/mdx-js__react": "^1.5.2",
+    "@types/react-dom": "^16.9.8",
     "gatsby": "^2.22.10",
     "react": "^16.12.0",
     "react-dom": "^16.12.0"
