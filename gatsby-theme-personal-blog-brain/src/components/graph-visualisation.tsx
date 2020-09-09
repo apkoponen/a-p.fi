@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { animated, useSpring } from "react-spring";
 import * as d3 from "d3";
-// @ts-expect-error ts-migrate(2307) FIXME: Cannot find module '../use-graph-data' or its corr... Remove this comment to see the full error message
 import { useGraphData } from "../use-graph-data";
 import { useWindowSize } from "../use-window-size";
 
