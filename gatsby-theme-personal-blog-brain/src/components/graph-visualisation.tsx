@@ -2,10 +2,12 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { animated, useSpring } from "react-spring";
 import * as d3 from "d3";
-import { useGraphData } from "../use-graph-data";
+import { GraphNode, useGraphData } from "../use-graph-data";
 import { useWindowSize } from "../use-window-size";
+import { SimulationNodeDatum, BaseType, ZoomBehavior } from "d3";
 
 import "./graph-visualisation.css";
+import { SimulationLinkDatum } from "d3";
 
 const RADIUS = 4;
 const STROKE = 1;
@@ -17,29 +19,38 @@ const MINIMIZED_GRAPH = {
   height: 177,
 };
 
+type D3GraphNode = GraphNode & SimulationNodeDatum;
+interface D3GraphLink {
+  source: D3GraphNode;
+  target: D3GraphNode;
+}
+
 const GraphVisualisation = ({ setGraphState, graphState }: any) => {
-  const [nodesData, linksData, navigate, highlight] = useGraphData();
+  const [_nodesData, _linksData, navigate, highlight] = useGraphData();
+
   const windowSize = useWindowSize();
   const d3Container = useRef(null);
+  const zoomHandler = useRef<ZoomBehavior<Element, unknown> | undefined>(
+    undefined
+  );
   const [zoom, setZoom] = useState(1);
 
   const modalSize = {
-    // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
-    width: Math.min(windowSize.width - 40, 900),
-    // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
-    height: Math.min(windowSize.height - 40, 800),
+    width: Math.min((windowSize.width || 0) - 40, 900),
+    height: Math.min((windowSize.height || 0) - 40, 800),
   };
 
   const simulation = useRef(
     d3
-      .forceSimulation(nodesData)
+      .forceSimulation<D3GraphNode, SimulationLinkDatum<D3GraphNode>>(
+        _nodesData
+      )
       .force("charge", d3.forceManyBody().strength(-300))
       .force(
         "link",
         d3
-          .forceLink(linksData)
-          // @ts-expect-error ts-migrate(2339) FIXME: Property 'id' does not exist on type 'SimulationNo... Remove this comment to see the full error message
-          .id((d) => d.id)
+          .forceLink<D3GraphNode, SimulationLinkDatum<D3GraphNode>>(_linksData)
+          .id((d: GraphNode) => d.id)
           .distance(40)
       )
       .force(
@@ -48,6 +59,10 @@ const GraphVisualisation = ({ setGraphState, graphState }: any) => {
       )
       .stop()
   );
+
+  // Simulation calls above add SimulationNodeDatum attributes to these arrays
+  const nodesData = _nodesData as D3GraphNode[];
+  const linksData = (_linksData as unknown) as D3GraphLink[];
 
   useEffect(() => {
     if (!d3Container.current || graphState === "hidden") {
@@ -71,29 +86,31 @@ const GraphVisualisation = ({ setGraphState, graphState }: any) => {
   const hookNode = useCallback(
     (node) => {
       return node
-        .on("click", (d: any) => {
+        .on("click", (d: D3GraphNode) => {
           navigate(d.slug);
           setGraphState("minimized");
         })
-        .on("mouseenter", (d: any) => {
+        .on("mouseenter", (d: D3GraphNode) => {
           highlight(d.slug, true);
         })
-        .on("mouseleave", (d: any) => {
+        .on("mouseleave", (d: D3GraphNode) => {
           highlight(d.slug, false);
         });
     },
     [navigate, highlight, setGraphState]
   );
 
-  const zoomHandler = useRef(null);
-
   useEffect(() => {
-    if (!d3Container.current || graphState === "hidden") {
+    if (
+      !d3Container.current ||
+      graphState === "hidden" ||
+      !simulation.current
+    ) {
       return;
     }
 
     const svg = d3.select("#d3-container");
-    const g = svg.select("g");
+    const g = svg.select<Element>("g");
 
     const zoomActions = () => {
       const scale = d3.event.transform;
@@ -101,24 +118,27 @@ const GraphVisualisation = ({ setGraphState, graphState }: any) => {
       g.attr("transform", scale);
     };
 
-    // @ts-expect-error ts-migrate(2322) FIXME: Type 'ZoomBehavior<Element, unknown>' is not assig... Remove this comment to see the full error message
     zoomHandler.current = d3
       .zoom()
       .scaleExtent([0.2, 3])
       .on("zoom", zoomActions);
-
-    // @ts-expect-error ts-migrate(2721) FIXME: Cannot invoke an object which is possibly 'null'.
-    zoomHandler.current(svg);
+    zoomHandler.current(
+      // @ts-ignore
+      svg
+    );
 
     const zoomOrKeep = (value: any) => (zoom >= 1 ? value / zoom : value);
     const font = Math.max(Math.round(zoomOrKeep(FONT_SIZE)), 1);
 
-    let link = g.select(".links").selectAll(".link");
-    let node = g.select(".nodes").selectAll(".node");
-    let text = g.select(".text").selectAll(".text");
+    let link = g.select(".links").selectAll<BaseType, D3GraphLink>(".link");
+    let node = g.select(".nodes").selectAll<BaseType, D3GraphNode>(".node");
+    let text = g.select(".text").selectAll<BaseType, D3GraphNode>(".text");
 
-    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-    node = node.data(nodesData, (d) => d.id);
+    node = node.data(
+      // @ts-ignore
+      nodesData,
+      (d: D3GraphNode) => d.id
+    );
     node.exit().remove();
     node = hookNode(
       node
@@ -128,36 +148,41 @@ const GraphVisualisation = ({ setGraphState, graphState }: any) => {
         .attr("r", zoomOrKeep(RADIUS))
     ).merge(node);
 
-    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-    link = link.data(linksData, (d) => `${d.source.id}-${d.target.id}`);
+    link = link.data(
+      // @ts-ignore
+      linksData,
+      (d: D3GraphLink) => `${d.source.id}-${d.target.id}`
+    );
     link.exit().remove();
-    // @ts-expect-error ts-migrate(2322) FIXME: Type 'Selection<BaseType, unknown, BaseType, unkno... Remove this comment to see the full error message
     link = link
       .enter()
       .append("line")
       .attr("class", "link")
       .attr("stroke-width", zoomOrKeep(STROKE))
       .attr("stroke", "grey")
-      // @ts-expect-error ts-migrate(2345) FIXME: Type 'null' is not assignable to type 'SVGLineElem... Remove this comment to see the full error message
-      .merge(link);
+      .merge(
+        // @ts-ignore
+        link
+      );
 
-    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-    text = text.data(nodesData, (d) => d.label);
+    text = text.data(
+      // @ts-ignore
+      nodesData,
+      (d: D3GraphNode) => d.label
+    );
     text.exit().remove();
     text = hookNode(
       text
         .enter()
         .append("text")
-        // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-        .text((d) => d.label.replace(/_*/g, ""))
+        .text((d: D3GraphNode) => d.label.replace(/_*/g, ""))
         .attr("class", "text")
         .attr("font-size", `${font}px`)
         .attr("text-anchor", "middle")
         .attr("alignment-baseline", "central")
     ).merge(text);
-
     simulation.current.nodes(nodesData);
-    // @ts-expect-error ts-migrate(2532) FIXME: Object is possibly 'undefined'.
+    // @ts-ignore
     simulation.current.force("link").links(linksData);
     simulation.current.alpha(1).restart();
     simulation.current.stop();
@@ -166,19 +191,17 @@ const GraphVisualisation = ({ setGraphState, graphState }: any) => {
       simulation.current.tick();
     }
 
-    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-    node.attr("cx", (d) => d.x).attr("cy", (d) => d.y);
-    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-    text.attr("x", (d) => d.x).attr("y", (d) => d.y - FONT_BASELINE);
+    node
+      .attr("cx", (d: D3GraphNode) => d.x || null)
+      .attr("cy", (d: D3GraphNode) => d.y || null);
+    text
+      .attr("x", (d: D3GraphNode) => d.x || null)
+      .attr("y", (d: D3GraphNode) => (d.y || 0) - FONT_BASELINE);
     link
-      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-      .attr("x1", (d) => d.source.x)
-      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-      .attr("y1", (d) => d.source.y)
-      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-      .attr("x2", (d) => d.target.x)
-      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-      .attr("y2", (d) => d.target.y);
+      .attr("x1", (d: D3GraphLink) => d.source.x || null)
+      .attr("y1", (d: D3GraphLink) => d.source.y || null)
+      .attr("x2", (d: D3GraphLink) => d.target.x || null)
+      .attr("y2", (d: D3GraphLink) => d.target.y || null);
   }, [graphState, d3Container]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -191,59 +214,70 @@ const GraphVisualisation = ({ setGraphState, graphState }: any) => {
     const node = g
       .select(".nodes")
       .selectAll(".node")
-      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-      .data(nodesData, (d) => d.id);
+      .data(
+        // @ts-ignore
+        nodesData,
+        (d: D3GraphNode) => d.id
+      );
     const text = g
       .select(".text")
       .selectAll(".text")
-      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-      .data(nodesData, (d) => d.id);
+      .data(
+        // @ts-ignore
+        nodesData,
+        (d: D3GraphNode) => d.id
+      );
     g.select(".links")
       .selectAll(".link")
-      // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-      .data(linksData, (d) => `${d.source.id}-${d.target.id}`);
-
-    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-    node.attr("fill", (d) => d.color);
-    // @ts-expect-error ts-migrate(2571) FIXME: Object is of type 'unknown'.
-    text.attr("fill", (d) => d.color);
+      .data(
+        // @ts-ignore
+        linksData,
+        (d: D3GraphLink) => `${d.source.id}-${d.target.id}`
+      );
+    node.attr("fill", (d: D3GraphNode) => d.color);
+    text.attr("fill", (d: D3GraphNode) => d.color);
   }, [nodesData, linksData, graphState, d3Container]);
 
-  const [modalSpring, setModalSpring] = useSpring(() => ({
-    to: {
-      bottom: "0%",
-      right: "0%",
-      height: MINIMIZED_GRAPH.height,
-      width: MINIMIZED_GRAPH.width,
-      transform: "translate(0%, 100%)",
-    },
-    onFrame(value: any) {
-      if (!zoomHandler.current) {
-        return;
-      }
+  const [modalSpring, setModalSpring] = useSpring(
+    // @ts-ignore
+    () => ({
+      to: {
+        bottom: "0%",
+        right: "0%",
+        height: MINIMIZED_GRAPH.height,
+        width: MINIMIZED_GRAPH.width,
+        transform: "translate(0%, 100%)",
+      },
+      onFrame(value: any) {
+        if (!zoomHandler.current) {
+          return;
+        }
 
-      const ratio = Math.max(
-        value.height / modalSize.height,
-        value.width / modalSize.width
-      );
-      const svg = d3.select("#d3-container");
-      // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
-      zoomHandler.current.scaleTo(svg, ratio);
+        const ratio = Math.max(
+          value.height / modalSize.height,
+          value.width / modalSize.width
+        );
+        const svg = d3.select("#d3-container");
+        zoomHandler.current.scaleTo(
+          // @ts-ignore
+          svg,
+          ratio
+        );
 
-      // @ts-expect-error ts-migrate(2531) FIXME: Object is possibly 'null'.
-      zoomHandler.current.translateTo(
-        svg,
-        modalSize.width / 2,
-        modalSize.height / 2
-      );
-    },
-  }));
+        zoomHandler.current.translateTo(
+          // @ts-ignore
+          svg,
+          modalSize.width / 2,
+          modalSize.height / 2
+        );
+      },
+    })
+  );
 
   useEffect(() => {
     setModalSpring(
       graphState === "maximized"
         ? {
-            // @ts-expect-error ts-migrate(2345) FIXME: Object literal may only specify known properties, ... Remove this comment to see the full error message
             bottom: "50%",
             right: "50%",
             height: modalSize.height,

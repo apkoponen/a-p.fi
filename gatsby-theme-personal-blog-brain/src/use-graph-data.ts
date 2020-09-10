@@ -3,19 +3,24 @@ import { useStaticQuery, graphql } from "gatsby";
 import { useStackedPages } from "react-stacked-pages-hook";
 import { generateGradientColors } from "./utils/gradient";
 
-interface Node {
+export interface GraphNode {
   id: string;
   label: string;
   slug: string;
   color: string;
 }
 
-interface Link {
+export interface GraphLink {
   source: string;
   target: string;
 }
 
-export const useGraphData = () => {
+export const useGraphData: () => [
+  GraphNode[],
+  GraphLink[],
+  (nodeId: string) => void,
+  (nodeId: string, active: boolean) => void
+] = () => {
   const [stackedPages, , navigate, highlight] = useStackedPages();
   const data = useStaticQuery<{
     allFile: {
@@ -49,8 +54,8 @@ export const useGraphData = () => {
   `);
 
   const [nodesData, linksData] = useMemo(() => {
-    const nodesData: Node[] = [];
-    const linksData: Link[] = [];
+    const nodesData: GraphNode[] = [];
+    const linksData: GraphLink[] = [];
 
     const textColor =
       typeof document !== "undefined"
@@ -86,7 +91,6 @@ export const useGraphData = () => {
         linksData.push({ source: node.id, target: x.parent.id })
       );
     });
-
     return [nodesData, linksData];
   }, [data, stackedPages]);
 
