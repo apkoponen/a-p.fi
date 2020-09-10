@@ -3,7 +3,7 @@ module.exports = (options) => {
 
   return {
     siteMetadata: {
-      title: `Digital Garden Title Placeholder`,
+      title: `Personal Blog & Brain Placeholder`,
       description: `Description placeholder`,
       siteUrl: `http://example.com/`,
     },
