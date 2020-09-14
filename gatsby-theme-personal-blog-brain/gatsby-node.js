@@ -7,7 +7,7 @@ const {
 } = require(`gatsby-transformer-markdown-references`);
 
 // These are customizable theme options we only need to check once
-let basePath;
+let brainPath;
 let contentPath;
 let rootNote;
 let extensions;
@@ -16,7 +16,7 @@ let mediaTypes;
 exports.onPreBootstrap = async ({ store }, themeOptions) => {
   const { program } = store.getState();
 
-  basePath = themeOptions.basePath || `/`;
+  brainPath = themeOptions.brainPath || `/`;
   contentPath = themeOptions.contentPath;
   rootNote = themeOptions.rootNote;
   extensions = themeOptions.extensions || [".md", ".mdx"];
@@ -73,7 +73,7 @@ exports.onCreateNode = async ({ node, actions, loadNodeContent }, options) => {
     createNodeField({
       node,
       name: `slug`,
-      value: urlResolve(basePath, path.parse(node.relativePath).dir, node.name),
+      value: urlResolve(brainPath, path.parse(node.relativePath).dir, node.name),
     });
     createNodeField({
       node,
@@ -151,27 +151,24 @@ exports.createPages = async ({ graphql, actions }) => {
       .filter((x) => x.childMdx.frontmatter.private !== true);
 
     localFiles.forEach((node) => {
-      createPage({
-        path: node.fields.slug,
-        component: LocalFileTemplate,
-        context: {
-          id: node.id,
-        },
-      });
-    });
-
-    if (rootNote) {
-      const root = localFiles.find((node) => node.fields.slug === rootNote);
-      if (root) {
+      if (rootNote && node.fields.slug === rootNote) {
+          createPage({
+            path: brainPath,
+            component: LocalFileTemplate,
+            context: {
+              id: node.id,
+            },
+          });
+      } else {
         createPage({
-          path: basePath,
+          path: node.fields.slug,
           component: LocalFileTemplate,
           context: {
-            id: root.id,
+            id: node.id,
           },
         });
       }
-    }
+    });
   } else {
     try {
       await fs.promises.unlink(

@@ -3,8 +3,9 @@ module.exports = {
     {
       resolve: `gatsby-theme-personal-blog-brain`,
       options: {
+        brainPath: '/brain',
         contentPath: `${__dirname}/content/foam`,
-        rootNote: `/readme`,
+        rootNote: `/brain/readme`,
       },
     },
   ],

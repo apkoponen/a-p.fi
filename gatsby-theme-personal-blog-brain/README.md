@@ -29,25 +29,25 @@ gatsby new my-digital-garden https://github.com/mathieudutour/gatsby-starter-dig
        {
          resolve: `gatsby-theme-personal-blog-brain`,
          options: {
-           // basePath defaults to `/`
-           basePath: `/garden`,
-           rootNote: `/garden/About-these-notes`,
-           contentPath: `/content/garden`,
+           // brainPath defaults to `/`
+           brainPath: `/brain`,
+           rootNote: `/brain/readme`,
+           contentPath: `/content/foam`,
          },
        },
      ],
    };
    ```
 
-3. Add notes to your site by creating `md` or `mdx` files inside `/content/garden`.
+3. Add notes to your site by creating `md` or `mdx` files inside `/content/foam`.
 
-4. Run your site using `gatsby develop` and navigate to your notes. If you used the above configuration, your URL will be `http://localhost:8000/garden`
+4. Run your site using `gatsby develop` and navigate to your notes. If you used the above configuration, your URL will be `http://localhost:8000/brain`
 
 ### Options
 
 | Key                      | Default value | Description                                                                      |
 | ------------------------ | ------------- | -------------------------------------------------------------------------------- |
-| `basePath`               | `/`           | Root url for the garden                                                          |
+| `brainPath`              | `/`           | Root url for the garden                                                          |
 | `rootNote`               |               | The URL of the note to use as the root                                           |
 | `contentPath`            |               | Location of local content                                                        |
 | `mdxOtherwiseConfigured` | `false`       | Set this flag `true` if `gatsby-plugin-mdx` is already configured for your site. |
